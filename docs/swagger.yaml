@@ -1,0 +1,283 @@
+definitions:
+  model.Alamat:
+    properties:
+      jalan:
+        example: Jalan Raya No. 123
+        type: string
+      kelurahan:
+        example: Sukamaju
+        type: string
+      kota:
+        example: Bandung
+        type: string
+    type: object
+  model.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  model.LoginResponse:
+    properties:
+      message:
+        example: Login success
+        type: string
+      token:
+        example: v4.public.xxxxxx
+        type: string
+    type: object
+  model.Mahasiswa:
+    properties:
+      _id:
+        example: 123456abcdef
+        type: string
+      alamat:
+        $ref: '#/definitions/model.Alamat'
+      fakultas:
+        example: Sekolah Vokasi
+        type: string
+      mata_kuliah:
+        items:
+          $ref: '#/definitions/model.MataKuliah'
+        type: array
+      minat:
+        example:
+        - Programming
+        - ' Data Science'
+        items:
+          type: string
+        type: array
+      nama:
+        example: Al Rumi
+        type: string
+      npm:
+        example: 1234567890
+        type: integer
+      prodi:
+        example: Teknik Informatika
+        type: string
+    type: object
+  model.MahasiswaRequest:
+    properties:
+      alamat:
+        $ref: '#/definitions/model.Alamat'
+      fakultas:
+        example: Sekolah Vokasi
+        type: string
+      mata_kuliah:
+        items:
+          $ref: '#/definitions/model.MataKuliah'
+        type: array
+      minat:
+        example:
+        - Programming
+        - ' Data Science'
+        items:
+          type: string
+        type: array
+      nama:
+        example: Al Rumi
+        type: string
+      npm:
+        example: 1234567890
+        type: integer
+      prodi:
+        example: Teknik Informatika
+        type: string
+    type: object
+  model.MataKuliah:
+    properties:
+      kode:
+        example: IF101
+        type: string
+      nama:
+        example: Algoritma
+        type: string
+      nilai:
+        example: 90
+        type: integer
+    type: object
+info:
+  contact:
+    email: indra@ulbi.ac.id
+    name: API Support
+    url: https://github.com/indrariksa
+  description: This is a sample swagger for Fiber
+  title: TES SWAGGER PEMROGRAMAN III
+  version: "1.0"
+paths:
+  /api/mahasiswa:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil semua data mahasiswa.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Mahasiswa'
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get All Data Mahasiswa.
+      tags:
+      - Mahasiswa
+    post:
+      consumes:
+      - application/json
+      description: Input data Mahasiswa.
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.Mahasiswa'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Mahasiswa'
+        "400":
+          description: Invalid request data
+        "401":
+          description: Unauthorized
+        "409":
+          description: Gagal menambahkan mahasiswa
+      security:
+      - BearerAuth: []
+      summary: Insert data Mahasiswa.
+      tags:
+      - Mahasiswa
+  /api/mahasiswa/{npm}:
+    delete:
+      consumes:
+      - application/json
+      description: Hapus data Mahasiswa.
+      parameters:
+      - description: Masukan NPM
+        in: path
+        name: npm
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Mahasiswa berhasil dihapus
+        "400":
+          description: Invalid NPM format
+        "401":
+          description: Unauthorized
+        "404":
+          description: Mahasiswa tidak ditemukan
+      security:
+      - BearerAuth: []
+      summary: Delete data Mahasiswa.
+      tags:
+      - Mahasiswa
+    get:
+      consumes:
+      - application/json
+      description: Ambil per NPM data mahasiswa.
+      parameters:
+      - description: Masukan NPM
+        in: path
+        name: npm
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Mahasiswa'
+        "400":
+          description: NPM harus berupa angka
+        "401":
+          description: Unauthorized
+        "404":
+          description: Data tidak ditemukan
+      security:
+      - BearerAuth: []
+      summary: Get By NPM Data Mahasiswa.
+      tags:
+      - Mahasiswa
+    put:
+      consumes:
+      - application/json
+      description: Ubah data Mahasiswa.
+      parameters:
+      - description: Masukan NPM
+        in: path
+        name: npm
+        required: true
+        type: integer
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.MahasiswaRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Mahasiswa'
+        "400":
+          description: Invalid request data or Invalid NPM format
+        "401":
+          description: Unauthorized
+        "404":
+          description: Error Update Data Mahasiswa
+      security:
+      - BearerAuth: []
+      summary: Update data Mahasiswa.
+      tags:
+      - Mahasiswa
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Melakukan proses login dan mengembalikan token PASETO jika username
+        dan password valid.
+      parameters:
+      - description: Login credentials (username dan password)
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login success
+          schema:
+            $ref: '#/definitions/model.LoginResponse'
+        "400":
+          description: Invalid body
+        "401":
+          description: Username not found or Wrong password
+        "500":
+          description: Failed to generate token
+      summary: Login User
+      tags:
+      - Auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

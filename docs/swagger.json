@@ -1,0 +1,429 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample swagger for Fiber",
+        "title": "TES SWAGGER PEMROGRAMAN III",
+        "contact": {
+            "name": "API Support",
+            "url": "https://github.com/indrariksa",
+            "email": "indra@ulbi.ac.id"
+        },
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/mahasiswa": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengambil semua data mahasiswa.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mahasiswa"
+                ],
+                "summary": "Get All Data Mahasiswa.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Mahasiswa"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Input data Mahasiswa.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mahasiswa"
+                ],
+                "summary": "Insert data Mahasiswa.",
+                "parameters": [
+                    {
+                        "description": "Payload Body [RAW]",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Mahasiswa"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Mahasiswa"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "409": {
+                        "description": "Gagal menambahkan mahasiswa"
+                    }
+                }
+            }
+        },
+        "/api/mahasiswa/{npm}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Ambil per NPM data mahasiswa.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mahasiswa"
+                ],
+                "summary": "Get By NPM Data Mahasiswa.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Masukan NPM",
+                        "name": "npm",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Mahasiswa"
+                        }
+                    },
+                    "400": {
+                        "description": "NPM harus berupa angka"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Ubah data Mahasiswa.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mahasiswa"
+                ],
+                "summary": "Update data Mahasiswa.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Masukan NPM",
+                        "name": "npm",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Payload Body [RAW]",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.MahasiswaRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Mahasiswa"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data or Invalid NPM format"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Error Update Data Mahasiswa"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Hapus data Mahasiswa.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mahasiswa"
+                ],
+                "summary": "Delete data Mahasiswa.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Masukan NPM",
+                        "name": "npm",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mahasiswa berhasil dihapus"
+                    },
+                    "400": {
+                        "description": "Invalid NPM format"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Mahasiswa tidak ditemukan"
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "description": "Melakukan proses login dan mengembalikan token PASETO jika username dan password valid.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login User",
+                "parameters": [
+                    {
+                        "description": "Login credentials (username dan password)",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login success",
+                        "schema": {
+                            "$ref": "#/definitions/model.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid body"
+                    },
+                    "401": {
+                        "description": "Username not found or Wrong password"
+                    },
+                    "500": {
+                        "description": "Failed to generate token"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.Alamat": {
+            "type": "object",
+            "properties": {
+                "jalan": {
+                    "type": "string",
+                    "example": "Jalan Raya No. 123"
+                },
+                "kelurahan": {
+                    "type": "string",
+                    "example": "Sukamaju"
+                },
+                "kota": {
+                    "type": "string",
+                    "example": "Bandung"
+                }
+            }
+        },
+        "model.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Login success"
+                },
+                "token": {
+                    "type": "string",
+                    "example": "v4.public.xxxxxx"
+                }
+            }
+        },
+        "model.Mahasiswa": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string",
+                    "example": "123456abcdef"
+                },
+                "alamat": {
+                    "$ref": "#/definitions/model.Alamat"
+                },
+                "fakultas": {
+                    "type": "string",
+                    "example": "Sekolah Vokasi"
+                },
+                "mata_kuliah": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.MataKuliah"
+                    }
+                },
+                "minat": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Programming",
+                        " Data Science"
+                    ]
+                },
+                "nama": {
+                    "type": "string",
+                    "example": "Al Rumi"
+                },
+                "npm": {
+                    "type": "integer",
+                    "example": 1234567890
+                },
+                "prodi": {
+                    "type": "string",
+                    "example": "Teknik Informatika"
+                }
+            }
+        },
+        "model.MahasiswaRequest": {
+            "type": "object",
+            "properties": {
+                "alamat": {
+                    "$ref": "#/definitions/model.Alamat"
+                },
+                "fakultas": {
+                    "type": "string",
+                    "example": "Sekolah Vokasi"
+                },
+                "mata_kuliah": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.MataKuliah"
+                    }
+                },
+                "minat": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Programming",
+                        " Data Science"
+                    ]
+                },
+                "nama": {
+                    "type": "string",
+                    "example": "Al Rumi"
+                },
+                "npm": {
+                    "type": "integer",
+                    "example": 1234567890
+                },
+                "prodi": {
+                    "type": "string",
+                    "example": "Teknik Informatika"
+                }
+            }
+        },
+        "model.MataKuliah": {
+            "type": "object",
+            "properties": {
+                "kode": {
+                    "type": "string",
+                    "example": "IF101"
+                },
+                "nama": {
+                    "type": "string",
+                    "example": "Algoritma"
+                },
+                "nilai": {
+                    "type": "integer",
+                    "example": 90
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
