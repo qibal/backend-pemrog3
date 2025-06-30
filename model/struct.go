@@ -3,7 +3,7 @@ package model
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Mahasiswa struct {
-	ID         primitive.ObjectID `bson:"_id,omitempty" json:"_id" example:"123456abcdef"`
+	ID         primitive.ObjectID `bson:"_id,omitempty" json:"_id"`
 	Nama       string             `bson:"nama" json:"nama" example:"Al Rumi"`
 	NPM        int                `bson:"npm" json:"npm" example:"1234567890"`
 	Prodi      string             `bson:"prodi" json:"prodi" example:"Teknik Informatika"`

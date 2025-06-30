@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"inibackend/config"
 	"inibackend/model"
+	"strconv"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -21,7 +22,7 @@ func InsertMahasiswa(ctx context.Context, mhs model.Mahasiswa) (insertedID inter
 		return nil, err
 	}
 	if count > 0 {
-		return nil, fmt.Errorf("NPM %s sudah terdaftar", mhs.NPM)
+		return nil, fmt.Errorf("NPM %d sudah terdaftar", mhs.NPM)
 	}
 
 	// Insert jika NPM belum ada
@@ -34,14 +35,19 @@ func InsertMahasiswa(ctx context.Context, mhs model.Mahasiswa) (insertedID inter
 	return insertResult.InsertedID, nil
 }
 
-func GetMahasiswaByNPM(ctx context.Context, npm string) (mhs model.Mahasiswa) {
+func GetMahasiswaByNPM(ctx context.Context, npm string) (mhs model.Mahasiswa, err error) {
 	mahasiswa := config.MongoConnect(config.DBName).Collection(config.MahasiswaCollection)
-	filter := bson.M{"npm": npm}
-	err := mahasiswa.FindOne(ctx, filter).Decode(&mhs)
+	npmInt, err := strconv.Atoi(npm)
+	if err != nil {
+		return model.Mahasiswa{}, fmt.Errorf("NPM harus berupa angka")
+	}
+	filter := bson.M{"npm": npmInt}
+	err = mahasiswa.FindOne(ctx, filter).Decode(&mhs)
 	if err != nil {
 		fmt.Printf("GetMahasiswaByNPM: %v\n", err)
+		return model.Mahasiswa{}, err
 	}
-	return
+	return mhs, nil
 }
 
 func GetAllMahasiswa(ctx context.Context) ([]model.Mahasiswa, error) {
@@ -62,36 +68,51 @@ func GetAllMahasiswa(ctx context.Context) ([]model.Mahasiswa, error) {
 
 	return data, nil
 }
-func UpdateMahasiswa(ctx context.Context, npm string, update model.Mahasiswa) (updatedNPM string, err error) {
+func UpdateMahasiswa(ctx context.Context, npm string, update model.MahasiswaRequest) (updatedData model.Mahasiswa, err error) {
 	collection := config.MongoConnect(config.DBName).Collection(config.MahasiswaCollection)
+	npmInt, err := strconv.Atoi(npm)
+	if err != nil {
+		return model.Mahasiswa{}, fmt.Errorf("NPM harus berupa angka")
+	}
 
-	filter := bson.M{"npm": npm}
+	filter := bson.M{"npm": npmInt}
 	updateData := bson.M{"$set": update}
 
 	result, err := collection.UpdateOne(ctx, filter, updateData)
 	if err != nil {
 		fmt.Printf("UpdateMahasiswa: %v\n", err)
-		return "", err
+		return model.Mahasiswa{}, err
 	}
 	if result.ModifiedCount == 0 {
-		return "", fmt.Errorf("tidak ada data yang diupdate untuk NPM %s", npm)
+		return model.Mahasiswa{}, fmt.Errorf("tidak ada data yang diupdate untuk NPM %s", npm)
 	}
-	return npm, nil
+
+	// Ambil data yang sudah diupdate untuk dikembalikan
+	err = collection.FindOne(ctx, filter).Decode(&updatedData)
+	if err != nil {
+		return model.Mahasiswa{}, fmt.Errorf("gagal mengambil data setelah update untuk NPM %s: %w", npm, err)
+	}
+
+	return updatedData, nil
 }
 
-func DeleteMahasiswa(ctx context.Context, npm string) (deletedNPM string, err error) {
+func DeleteMahasiswa(ctx context.Context, npm string) (deletedCount int64, err error) {
 	collection := config.MongoConnect(config.DBName).Collection(config.MahasiswaCollection)
+	npmInt, err := strconv.Atoi(npm)
+	if err != nil {
+		return 0, fmt.Errorf("NPM harus berupa angka")
+	}
 
-	filter := bson.M{"npm": npm}
+	filter := bson.M{"npm": npmInt}
 	result, err := collection.DeleteOne(ctx, filter)
 	if err != nil {
 		fmt.Printf("DeleteMahasiswa: %v\n", err)
-		return "", err
+		return 0, err
 	}
 	if result.DeletedCount == 0 {
-		return "", fmt.Errorf("tidak ada data yang dihapus untuk NPM %s", npm)
+		return 0, fmt.Errorf("tidak ada data yang dihapus untuk NPM %s", npm)
 	}
-	return npm, nil
+	return result.DeletedCount, nil
 }
 
 func FindUserByUsername(ctx context.Context, username string) (*model.UserLogin, error) {

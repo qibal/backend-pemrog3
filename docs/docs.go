@@ -76,7 +76,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Mahasiswa"
+                            "$ref": "#/definitions/model.MahasiswaRequest"
                         }
                     }
                 ],
@@ -329,8 +329,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "_id": {
-                    "type": "string",
-                    "example": "123456abcdef"
+                    "type": "string"
                 },
                 "alamat": {
                     "$ref": "#/definitions/model.Alamat"

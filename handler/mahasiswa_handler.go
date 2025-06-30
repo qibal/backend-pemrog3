@@ -52,16 +52,13 @@ func GetAllMahasiswa(c *fiber.Ctx) error {
 // @Failure 404 "Data tidak ditemukan"
 // @Router /api/mahasiswa/{npm} [get]
 func GetMahasiswaByNPM(c *fiber.Ctx) error {
-	npm := c.Params("npm") // Langsung ambil sebagai string
+	npm := c.Params("npm")
 
 	// Dapatkan mahasiswa dari repository
-	mhs := repository.GetMahasiswaByNPM(c.Context(), npm)
-
-	// Periksa apakah mahasiswa ditemukan dengan memeriksa NPM-nya
-	// (atau field lain yang menandakan bahwa data valid)
-	if mhs.NPM == 0 { // Sesuaikan dengan struktur model.Mahasiswa Anda
+	mhs, err := repository.GetMahasiswaByNPM(c.Context(), npm)
+	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "Data tidak ditemukan",
+			"message": fmt.Sprintf("Data dengan NPM %s tidak ditemukan", npm),
 			"status":  fiber.StatusNotFound,
 		})
 	}
@@ -80,19 +77,29 @@ func GetMahasiswaByNPM(c *fiber.Ctx) error {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body model.Mahasiswa true "Payload Body [RAW]"
+// @Param request body model.MahasiswaRequest true "Payload Body [RAW]"
 // @Success 201 {object} model.Mahasiswa
 // @Failure 400 "Invalid request data"
 // @Failure 401 "Unauthorized"
 // @Failure 409 "Gagal menambahkan mahasiswa"
 // @Router /api/mahasiswa [post]
 func InsertMahasiswa(c *fiber.Ctx) error {
-	var mhs model.Mahasiswa
+	var req model.MahasiswaRequest
 
-	if err := c.BodyParser(&mhs); err != nil {
+	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid request data",
 		})
+	}
+
+	mhs := model.Mahasiswa{
+		Nama:       req.Nama,
+		NPM:        req.NPM,
+		Prodi:      req.Prodi,
+		Fakultas:   req.Fakultas,
+		Alamat:     req.Alamat,
+		Minat:      req.Minat,
+		MataKuliah: req.MataKuliah,
 	}
 
 	insertedID, err := repository.InsertMahasiswa(c.Context(), mhs)
@@ -124,8 +131,8 @@ func InsertMahasiswa(c *fiber.Ctx) error {
 // @Failure 404 "Error Update Data Mahasiswa"
 // @Router /api/mahasiswa/{npm} [put]
 func UpdateMahasiswa(c *fiber.Ctx) error {
-	npm := c.Params("npm") // Langsung gunakan npm sebagai string
-	var mhs model.Mahasiswa
+	npm := c.Params("npm")
+	var mhs model.MahasiswaRequest
 
 	if err := c.BodyParser(&mhs); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -133,7 +140,7 @@ func UpdateMahasiswa(c *fiber.Ctx) error {
 		})
 	}
 
-	updatedNPM, err := repository.UpdateMahasiswa(c.Context(), npm, mhs) // Gunakan npm string
+	updatedData, err := repository.UpdateMahasiswa(c.Context(), npm, mhs)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": fmt.Sprintf("Error Update Data Mahasiswa %s : %v", npm, err),
@@ -142,7 +149,7 @@ func UpdateMahasiswa(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Data mahasiswa berhasil diupdate",
-		"npm":     updatedNPM,
+		"data":    updatedData,
 		"status":  fiber.StatusOK,
 	})
 }
@@ -161,18 +168,19 @@ func UpdateMahasiswa(c *fiber.Ctx) error {
 // @Failure 404 "Mahasiswa tidak ditemukan"
 // @Router /api/mahasiswa/{npm} [delete]
 func DeleteMahasiswa(c *fiber.Ctx) error {
-	npm := c.Params("npm") // Langsung gunakan npm sebagai string
+	npm := c.Params("npm")
 
-	deletedNPM, err := repository.DeleteMahasiswa(c.Context(), npm) // Gunakan npm string
+	deletedCount, err := repository.DeleteMahasiswa(c.Context(), npm)
 	if err != nil {
+		// Error ini sudah mencakup kasus "data tidak ditemukan" dari repository
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": fmt.Sprintf("Mahasiswa dengan NPM %s tidak ditemukan: %v", npm, err),
+			"error": fmt.Sprintf("Gagal menghapus data: %v", err),
 		})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Mahasiswa berhasil dihapus",
-		"npm":     deletedNPM,
-		"status":  fiber.StatusOK,
+		"message":      "Mahasiswa berhasil dihapus",
+		"deletedCount": deletedCount,
+		"status":       fiber.StatusOK,
 	})
 }

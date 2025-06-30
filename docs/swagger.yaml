@@ -30,7 +30,6 @@ definitions:
   model.Mahasiswa:
     properties:
       _id:
-        example: 123456abcdef
         type: string
       alamat:
         $ref: '#/definitions/model.Alamat'
@@ -138,7 +137,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/model.Mahasiswa'
+          $ref: '#/definitions/model.MahasiswaRequest'
       produces:
       - application/json
       responses:

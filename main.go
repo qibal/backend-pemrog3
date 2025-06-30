@@ -17,15 +17,15 @@ import (
 
 func init() {
 	// Load file .env saat program dijalankan
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	fmt.Println("Gagal memuat file .env")
-	// }
-	if _,err=os.Stat(".env");err ==nil{
-		fmt.Println("File .env tidak ditemukan")
-	} else {
-		fmt.Println("File .env ditemukan")
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Gagal memuat file .env")
 	}
+	// if _,err=os.Stat(".env");err ==nil{
+	// 	fmt.Println("File .env tidak ditemukan")
+	// } else {
+	// 	fmt.Println("File .env ditemukan")
+	// }
 }
 
 // @title TES SWAGGER PEMROGRAMAN III
@@ -38,6 +38,7 @@ func init() {
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
+// @host localhost:
 // @BasePath /
 // @schemes http https
 func main() {
