@@ -2,7 +2,7 @@ package config
 
 var allowedOrigins = []string{
 	"http://localhost:5173/",
-	"https://front-end-pemprog3.vercel.app/",
+	"backend-pemrog3-production.up.railway.app",
 }
 
 func GetAllowedOrigins() []string {
